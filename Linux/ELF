@@ -2,7 +2,9 @@ What is an ELF file?
 	ELF is the abbreviation for Executable and Linkable Format and defines the structure for binaries, libraries, and core files. The formal specification allows the operating system to interpreter its underlying machine instructions correctly.
 	ELF files are typically the output of a compiler or linker and are a binary format. With the right tools, such file can be analyzed and better understood.
 	ELF format defines the interface between operating system and application.
-	When you tell the OS to run a program, it expects the program to be formatted in a certain way and (for example) expects the first section of the binary to be an ELF header containing certain information at specific memory offsets. This is how the application communicates important information about itself to the operating system. If you build a program in a non-ELF binary format (such as a.out or PE), then an OS that expects ELF-formatted applications will not be able to interpret the binary file or run the application. This is one big reason why Windows apps cannot be run directly on a Linux machine (or vice versa) without being either re-compiled or run inside some type of emulation layer that can translate from one binary format to another.
+	When you tell the OS to run a program, it expects the program to be formatted in a certain way and (for example) expects the first section of the binary to be an ELF header containing certain information at specific memory offsets. 
+	This is how the application communicates important information about itself to the operating system. If you build a program in a non-ELF binary format (such as a.out or PE), then an OS that expects ELF-formatted applications will not be able to interpret the binary file or run the application. 
+	This is one big reason why Windows apps cannot be run directly on a Linux machine (or vice versa) without being either re-compiled or run inside some type of emulation layer that can translate from one binary format to another.
 	IIRC, Windows currently uses the Portable Executable (or, PE) format.
 	
 Why learn the details of ELF?
@@ -10,8 +12,10 @@ Why learn the details of ELF?
 	
 
 From source to process	
-	So whatever operating system we run, it needs to translate common functions to the language of the CPU, also known as machine code. A function could be something basic like opening a file on disk or showing something on the screen. Instead of talking directly to the CPU, we use a programming language, using internal functions. A compiler then translates these functions into object code. This object code is then linked into a full program, by using a linker tool. The result is a binary file,
-	which then can be executed on that specific platform and CPU type.
+	So whatever operating system we run, it needs to translate common functions to the language of the CPU, also known as machine code. 
+	A function could be something basic like opening a file on disk or showing something on the screen. Instead of talking directly to the CPU, we use a programming language, using internal functions. 
+	A compiler then translates these functions into object code. This object code is then linked into a full program, by using a linker tool. 
+	The result is a binary file, which then can be executed on that specific platform and CPU type.
 	
 	
 Structure
