@@ -1,0 +1,105 @@
+GNU Debugger, also known as gdb, allows us to sneak through the code while it executes or what a program was trying to do at the moment before it crashed. 
+
+Example:
+	
+	Consider the following source code.
+		
+		// sum.c
+		#include <stdio.h> 
+
+		int sum (int a, int b) { 
+			int c; 
+			c = a + b; 
+			return c; 
+		} 
+
+		int main() { 
+			int x, y, z; 
+			printf("\nEnter the first number: "); 
+			scanf("%d", &x); 
+			printf("Enter the second number: "); 
+			scanf("%d", &y); 
+			z = sum (x, y); 
+			printf("The sum is %d\n\n", z); 
+			return 0; 
+		}	
+	
+	In order to debug the output file we need to compile the same with -g option to gcc as follows.
+		$ gcc -g sum.c -o sum
+	
+	The output file sum can be attached to gdb via either of the following 2 ways:
+		1. By specifying the output file as an argument to gdb.
+			$ gdb sum
+		2. Running output file inside gdb using file command.
+			$ gdb
+			(gdb) file sum
+	
+	The list command lists lines in the source code file and moves the pointer. So first list will display the first 10 lines and next list displays the next 10 and so on.
+		(gdb) list
+		1	#include <stdio.h>   
+		2	 
+		3	int sum (int a, int b) { 
+		4		int c; 
+		5		c = a + b; 
+		6		return c; 
+		7	} 
+		8	 
+		9	int main() { 
+		10		int x, y, z;
+	
+	To start execution, issue the run command. Now the program gets executed normally. But we forgot to put some breakpoints in the source code for debugging,
+		(gdb) b main
+		
+	Now step through the lines of code using the next or n command. It is important to note that next command does not go inside function code unless a break point is set on the function. Let’s try out the print command now. Set break point on function sum as below.
+	
+	If the program being run requires command line parameters then provide the same along with the run command as.
+		(gdb) run   . . .
+
+Modifying Variables
+	GDB is also capable of modifying variables throughout the execution of program. 
+
+	(gdb) r 
+	Starting program: /root/sum 
+
+	Enter the first number: 1 
+	Enter the second number: 2 
+
+	Breakpoint 1, main ( ) at sum.c:16 
+	16		printf("The sum is %d\n\n", z); 
+	(gdb) set z=4 
+	(gdb) c 
+	Continuing. 
+	The sum is 4
+	
+Enable/Disable Breakpoints
+	To get the list of all breakpoints type info breakpoints.
+	
+	Here there is only one break point and it is To. enabled disable the breakpoints specify the breakpoint number along with the disable command. To enable afterwards use the enable command.
+	
+	You can also delete the breakpoints with delete command.
+	
+Debugging running Processes
+	Numerous processes are running in background in a GNU/Linux system. To debug a running process first of all we need to find the process id of that particular process. pidof command gives you the pid of a process.
+		$ pidof <process_name>
+		
+	Now we need to attach this pid to gdb. There are 2 ways.
+		1. By specifying pid along with gdb.
+			$ gdb -p <pid>
+		2. Using attach command from gdb.
+			(gdb) attach <pid>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

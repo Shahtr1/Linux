@@ -1,0 +1,65 @@
+A Brief Introduction to RCS
+	RCS (Revision Control System) is a method for creating, editing, and using files shared with other users.
+	
+	To Create:
+		To create a new RCS file, you first need to create a file and give it a filename, say newfile.ext. 
+		Once that is done, just type
+			ci newfile.ext
+		
+		This will convert the file to an RCS file with an initial version number. It will also ask for you to enter a short description of the file; this description may be terminated by a line with a '.' in the first position.
+		
+		the new file resulting from the ci newfile.ext command would be newfile.ext,v. These *,v files are the RCS files.
+
+		RCS has the facility to allow several people to check RCS files in and out. But the person who creates the original RCS file will be the only initial permitted user. So you will need to add permission for the other users. This is done with the RCS command:
+			rcs -acjcs newfile.ext
+			rcs -aschauble newfile.ext
+		Now the persons with the login names cjcs and schauble have been added as permitted users to the RCS file called newfile,v. It is often wise to add your own login as well.
+
+	To Edit:
+		To work on a file, first you must check it out:
+			co -l filename.ext
+			
+		The -l puts a lock on it, meaning that no one else can modify it while you are working with it. This also allows you to check it back in when you are finished:
+			ci filename.ext
+		
+		Do not type
+			ci *
+			as this will attempt to check in every file in the directory -- even those which are not RCS files, such as a Makefile or a README file
+			
+	To Read/Use:
+		If you just wish to read the file, you may check out the files without locks:
+			co filename.ext
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

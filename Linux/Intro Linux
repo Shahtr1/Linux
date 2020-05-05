@@ -1,0 +1,280 @@
+INTRODUCTION
+
+
+Downloading and Security
+
+1		The “wget” or “curl” command-line application can also be used under unix-like operating systems to fetch a file via http or ftp when the correct URL is known.
+
+2		Many sites provide an md5sum file for each archive file, which holds a checksum of the contents of the file; sometimes a single md5sums file holds checksums for a number of other files. 
+		You should always obtain an md5sums file from the original site, never a mirror. 
+
+3		To compute the sum of a single file:
+			md5sum file-to-check
+			If the value is in a webpage, you can open the “find” dialog on that page and copy-and-paste the value output by the md5sum program. 
+
+4		If the software provider provides an md5sums file which has a list of (filename, checksum) pairs, then you can run:
+			md5sum -c md5sums-file
+			
+5		Some software providers sign archive files instead of (or as well as) providing an md5 checksum. In this case you should:
+			download the provider’s public key from their website (using https where possible)
+			download the “signature file” for the archive-file; this will be a small file which has the same base name as the downloaded file, with suffix “.sig” or “.asc”
+			perform the following steps	
+				
+			# needed only once for each key, ie each "publisher"
+				gpg --import {public-key}
+
+				gpg --verify {signature-file-name}	
+			
+			The verify step decrypts the signature-file, revealing a checksum; it then runs a checksum algorithm over the real file and checks that they are the same. 
+			Obviously, the “gpg” application needs to be installed locally.
+
+			
+Archive Files
+
+1		An archive is a single file that contains within it a number of other files.
+		There are several different tools for creating such files but in all cases the process is effectively to append all the individual files together, 
+		and then add an “index” which contains the offset, length, name and other properties of the original files so that they can be extracted again.
+
+2		The “tar” application packs multiple files into a single “tar-format” archive file, which is the most commonly-used format in open-source.
+		Tar originally meant “tape archive”, but the format works well on disks too. Tar archives remember not only the original names of files, but also their original Unix “owner id” and file-permissions.
+		The ownerid is seldom useful (unless the tar archive was created on the same machine it is being unpacked on), but the file-permissions are.
+		By convention, tar-format files are usually given names ending in “.tar”. Tar-format files containing sourcecode are sometimes referred to as “tarballs”.
+
+3		The most commonly used compression type is “gzip”, and the resulting file is usually given the suffix “.tar.gz” or “.tgz”. Compression with bzip2 is also common, and such files are usually given the suffix “.tar.bz2”. 
+		Occasionally “xz” compression will be used; files are usually given the suffix “.tar.xz”.
+			# Modern GNU tar options. This works for files compressed
+		    # with gzip and bzip too
+		    tar --extract --file filename
+
+		    # Same as above
+		    tar -xf filename
+
+		    # Same as above. Leading "-" is optional
+		    tar xf filename
+
+		    # explicitly decompress gzip2-compressed file then
+		    # pass uncompressed result directly into tar
+		    gzip -cd filename.tgz | tar xf -
+
+		    # same as above, but for bzip2-compressed files
+		    bunzip2 -cd filename.tar.bz2 | tar xf -
+
+4		It is best to check the contents of the tarfile before unpacking, using the following command:
+			# Modern GNU tar
+			tar --list --file filename
+
+			# Same as above
+			tar -tf filename
+
+			# Same as above. Leading "-" is optional
+			tar tf filename
+
+			gzip -cd filename | tar tf -
+			bunzip -cd filename | tar tf -
+
+5		Occasionally, archive files are distributed in “zip format”. Zip-archives are most common in the DOS and Windows world, or in relation to Java, but are occasionally encountered elsewhere.
+		The Zip format works like a combination of tar and gzip (it uses the same compression as gzip but its own kind of internal “indexing”). Zipfiles do not preserve the original unix ownerid or file-permissions.
+		The contents of such a file can be extracted with the unzip command (assuming it is installed locally).
+
+
+Patching
+
+1		Sometimes the downloaded software is known not to work in your environment, and somebody has already figured out how to tweak it to resolve the problem. 
+		The person who solved the problem may publish their “tweak” in the form of a sed or awk command, a shell-script containing multiple sed/awk commands, or a patch file.
+
+2		The sed tool applies a regular-expression to each line in a textfile, and replaces matching text with something else. It’s a fairly limited tool, but easy to use and widely available.
+
+3		awk does something similar, but is capable of performing more complex transformations of textfiles.
+
+4		A patchfile is created by using the “diff” tool to compare two versions of the same file and output the differences. 
+		The patch tool can take the output of “diff” and apply it to one of the files to “convert it” to the other version. 
+		The nice thing about patchfiles (ie the output of diff) is that it is quite human-readable.
+
+
+Build Systems: configure, make, cmake, etc
+
+	Configure and Make
+	1		The most widely-spread tool used to manage the compilation and installation of source-code is make. 
+			Make is an application which takes a configuration-file (called a makefile) that contains a list of rules, most of the form:
+				when TARGET-FILE is older than SOURCE-FILE then SOME-ACTION
+				
+	2		The target-file is the end product, or some intermediate stage. The source-file is the hand-written source-code, or some intermediate artifact. 
+			The action is usually the invocation of a compiler, a linker, or similar which recreates the target-file. 
+
+	3		Unfortunately, although makefile syntax is very powerful it still isn’t enough to be able to handle all the possible ways that computers can be configured, 
+			and all the possible ways that the person installing the software may wish to compile the application. 
+			Many software packages therefore come with a shell-script named “configure” and a template makefile named “Makefile.in”. 
+
+	4		The configure script takes a list of configuration options on the commandline, and converts the template makefile into a real makefile customised for the local computer and the installer’s wishes. 
+			The installation sequence therefore usually goes like:
+					# unpack and read documentation
+					tar xf filename
+					cd {directory created by above step}
+					less README
+					less INSTALL
+
+					# generate customised makefile
+					./configure {some options ...}
+
+					# compile everything in the local directory
+					make
+
+					# update global directories
+					sudo make install
+			
+			Configure is usually invoked as “./configure” to avoid two possible problems:
+				Some users don’t have “.” in their $PATH variable. In particular, the root user doesn’t have this for security reasons
+				Some users don’t have “.” as the first entry in their $PATH, meaning that the wrong configuration script might get run
+				In general, it is best to perform all steps except “make install” as a normal system user, not root. This avoids mistakes and possibly some attacks 
+				
+				Some projects provide a makefile but no “configure” script; in this case the “configure” step above can be omitted.
+				Either the application is simple enough that it doesn’t need it, or the software developers have built more logic into the hand-written makefile.
+				
+				Not all systems are set up with “sudo” enabled. In this case, use the following instead:
+					su  # must then enter root password
+					make install
+					exit
+
+	5		For most software, the configure and make commands can be run in the same directory as the source-code, as shown above. 
+			The result is that new files generated during compilation get mixed together with the originals, which is somewhat messy, but the “make clean” command can be used to tidy that up later. 
+			However for some software it is necessary to create a temporary directory, change the current-working-directory to that directory and then perform the build-steps there; 
+			the project documentation should indicate if this is necessary. Some people consider it better to always build from a temporary directory. 
+			An example of building using a separate directory next to the original source-code, which is a common convention:
+				# unpack into a directory {packagename}
+				tar xf filename
+
+				# create separate build directory
+				mkdir {packagename}-build
+
+				# compile everything in the separate build directory
+				cd {packagename}-build
+				../{packagename}/configure {some options}
+				make
+
+				# update global directories
+				sudo make install
+	
+	Other Build Tools
+	
+	1		Some projects use cmake as their build-tool. cmake works somewhat like configure (see above); 
+			it generates a makefile whose content depends on the options passed to the cmake command, and on features of the local system. 
+			The steps require to build a cmake-based package are identical to the “configure/make” examples above except that the configure step is replaced by:
+				cmake . -DCMAKE_BUILD_TYPE=Release {some options ...}
+	
+	2		Some projects use build-tools based on python or perl rather than make. The principles are still fairly similar.
+	
+	Environment Variables
+	
+	1		Options to configure the compilation and installation of an application are usually passed as command-line parameters to the “configure” script or the make program. 
+			However sometimes configuration options are passed via environment variables instead. These can be specified by placing the definitions on the start of the command, eg
+				NAME=tom ENABLE_FOO=no ./configure
+	
+	2		Environment variables can also be defined before running the command:
+				export NAME=tom
+				export ENABLE_FOO=no
+				./configure
+	
+	3		Which options are available is normally described in the archive’s README or INSTALL files, or on the project website. Sometimes the available options can be seen by running ./configure --help.	
+
+	Building and Installing Documentation
+	
+	1		Some projects provide documentation which can be “installed” so it is accessible via normal system documentation viewers such as “man” or “info”. 
+	
+	2		Some provide documentation in HTML form, which usually gets installed under /usr/share/doc. 
+			Sometimes this documentation is included in the “standard” archive file, and sometimes it is a separate (optional) download.
+	
+	3		Sometimes the documentation is installed as part of the standard make install command, and sometimes a separate command must be used if you wish to install it.
+	
+	4		And sometimes the documentation is delivered in a “ready-to-use” form, 
+			but sometimes it is delivered in a kind of “raw form” that must be processed before being installed - rather like source-code needs to be compiled.
+	
+	Other Build Targets
+	
+	1		As well as commands to compile everything (“make”) and to install the previously-compiled programs (“make install”) or documentation, there are a few other common possibilities.
+	
+	2		make clean usually removes all generated files, ie leaves the directory as it was after the files were unpacked from the archive.
+	
+	Invoking a Compiler
+	
+	1		the most common step performed by “make” or “cmake” is to invoke a compiler. The local system must have the appropriate compilers installed.
+	
+	2		If the compilation step fails with an error-message about not being able to find a header-file, 
+			or not being able to find a library-file then you have probably not installed all of the pre-requisites - reread the README and INSTALL files. 
+	
+	3		In some cases, the missing prerequisite is optional, 
+			in which case there will be a parameter that can be passed to configure or an environment variable which can be set to allow the software to be installed without that prerequisite.
+	
+	4		Double-check the parameters you specified, and if they seem correct then the project documentation is the best resource for resolving such issues.
+	
+	5		The output of compiling and linking (the “executables” that you actually wanted) usually have significant amounts of data in them which are useful for debugging the programs, 
+			but not useful for “normal end users”. 
+	
+	6		This information can be removed from the executable files by running strip {filename} on them. Smaller programs will save disk-space and also load slightly faster. 
+	
+	Post-Installation Configuration
+	
+	1		Some applications can have their behaviour customised via configuration files read on application startup. 
+	
+	2		Often applications install default versions of the configuration files somewhere under /usr or in the /etc directory. 
+	
+	3		Inspect the output of the make install command to see which config files have been installed. 
+	
+	4		Configuration options should also be documented in the program’s README or INSTALL, or on their website.
+
+	
+Appendix A: An example Makefile	
+
+	Unfortunately, when building packages from source-code, it is not unusual for compilation errors to occur. 
+	
+	It is sometimes possible to diagnose and fix the problem by inspecting the makefile, ie a basic understanding of makefile syntax can be helpful. 
+	
+	Here is a very brief example of the basic syntax and functionality; 
+	
+	A sample makefile to build an executable called ‘prog’ which has one ‘c’ sourcefile, one headerfile and uses one library (which it also builds from a single ‘c’ sourcefile) could look like the following:
+		prog: prog.c prog.h libmylib.a
+		  gcc -o prog prog.c -L. -lmylib
+
+		libmylib.a: libmylib.o
+		  ar -rcs libmylib.a libmylib.o
+
+		libmylib.o: libmylib.c libmylib.h
+		  gcc -c -o libmylib.o libmylib.c
+
+	The form of the entries (rules) are:
+		target: dependency1 [dependency-n ...]
+		<tab> command to execute
+		...
+		
+		For each “rule”, if the target is missing or older than any of the dependencies (based on file timestamps), then the command(s) are run to (re)create the target. 
+		
+		However each dependency is first tested to see if there is a rule that has it as a target. If so, that target is recursively evaluated, ie (re-)built if it is missing or older than its dependencies.
+		
+		Thus in the above set of rules, a change in libmylib.c will cause libmylib.o to be rebuilt. Then libmylib.a is regenerated and finally prog is rebuilt.
+
+		Makefiles can get very complicated and many are automatically generated, but the above principles always apply.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

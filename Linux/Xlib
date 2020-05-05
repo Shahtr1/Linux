@@ -1,0 +1,70 @@
+The X Window System: A Brief Introduction
+
+1		The X Window System, commonly referred to merely as X, is a highly configurable, cross-platform, 
+		complete and free client-server system for managing graphical user interfaces (GUIs) on single computers and on networks of computers.
+
+2		X is a large and complex system, with a level of complexity comparable to that of an operating system itself. 
+		It is one of the most powerful and useful software packages for Linux and other Unix-like operating systems,
+		and it is the de facto standard graphic engine for such systems. 
+
+3		X is actually a standard (i.e., a set of rules) rather than a single program, and any particular program that implements this standard
+		is referred to as an X Window System. 
+		X is a low-level method of creating windows, receiving user inputs (key-presses and mouse events) and drawing lines,
+		curves and bitmaps (i.e., images represented by a pattern of bits). 
+
+4		In the typical client-server relationship, the client application runs on the local machine. 
+		It helps the user request data from the server and displays the requested data appropriately on the user's display screen. 
+		The server application, which processes the data as requested and returns the results to the client,
+		typically can run on either a remote machine (i.e., a computer located elsewhere on the network)
+		or the local machine with no obvious difference to the user (so-called network transparency). 
+		When running on a remote machine, the server program can accommodate the requests of multiple clients.
+
+5		In X, however. the client-server relationship is inverted in that each local machine contains X server server software
+		and can access X clients (i.e., application programs) 
+		that run either on the same machine or on a remote machine. 
+		The X server does the actual work of managing the input and display devices, including performing the requested display operation.
+		This has the advantage of eliminating the need for the application programs to be aware of these hardware details, 
+		thereby simplifying the development of such programs and facilitating their servicing of multiple users on the network simultaneously.
+
+6		Communication between an X server and X clients is governed by the X protocol,
+		which is sometimes termed the message format of the X Window System. 
+		Such communication consists of: (1) requests by clients for information or an action, (2) responses by the server, 
+		(3) the sending by the server of events to clients and (4) the sending by the server of error packets if client requests are invalid.
+
+7		The X server provides five basic types of services: input handling, window services, graphics, text and fonts, and resource management. 
+		Input handling services consist of passing keyboard and mouse inputs to clients as events via the window manager,
+		which X regards as just another client. 
+		A window manager is a program that provides basic management operations for windows, such as opening, closing,
+		moving and resizing windows.
+
+8		X11 is an implementation of the X Server, which provides display resources to other systems.
+		X11 is distributed with the Solaris Operating System (OS).
+
+9		Xlib (also known as libX11) is an X Window System protocol client library written in the C programming language. 
+		It contains functions for interacting with an X server. 
+
+10		The X11 system provides a relatively low-level C library for writing X-clients.
+		Those are the programs that use an X-display for their user interface. Xlib can draw simple solids, 
+		receive events, write text in various fonts, and also do primitive interprocess comunication.
+
+11		This architecture really shines when we use it in a network of computers. 
+		Now consider this; you don’t have a web browser(Firefox) on your machine but your friend has one.
+		Well, you could ssh but the problem is Firefox needs GUI, and like I said before, GUI cannot be rendered on a terminal.
+		So what you gotta do is use the X forwarding feature.
+		What this basically does is lets you send your input over the network to your friend’s X client,
+		and get the output(the commands on how to render the GUI) to your X server, hence forwarding. 
+		Thus the GUI that your friend’s machine generates gets rendered on your display. GUI over the network.
+		Ain’t that cool?
+
+12		
+
+
+
+
+
+
+
+
+
+
+

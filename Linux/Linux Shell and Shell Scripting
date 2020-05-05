@@ -1,0 +1,161 @@
+If you are using any major operating system you are indirectly interacting to shell.
+Before understanding shell scripting we have to get familiar with following terminologies – 
+	Kernel
+	Shell
+	Terminal
+	
+What is Kernel?
+	The kernel is a computer program that is the core of a computer’s operating system, with complete control over everything in the system.
+	It manages following resources of the Linux system –
+		File management
+		Process management
+		I/O management
+		Memory management
+		Device management etc.
+	
+	Complete Linux system = Kernel + GNU system utilities and libraries + other management scripts + installation scripts.
+		
+	
+What is GNU/Linux?	
+	The GNU Linux project was created for the development of a Unix-like operating system that comes with source code that can be copied, modified, and redistributed. Richard Stallman announced the GNU Linux project in 1983 and, with others, formed the Free Software Foundation in 1985.
+	According to the GNU Linux project, there is no independent GNU operating system. Furthermore, they claim that there is no independent Linux operating system either. The OS known as Linux is based on the Linux kernel but all other components are GNU. As such, many believe that the OS should be known as GNU/Linux or GNU Linux.
+	GNU stands for GNU's not Unix, which makes the term a recursive acronym (an acronym in which one of the letters stands for the acronym itself).
+	
+
+What is Shell?
+	A shell is special user program which provide an interface to user to use operating system services. Shell accept human readable commands from user and convert them into something which kernel can understand. It is a command language interpreter that execute commands read from input devices such as keyboards or from files. The shell gets started when the user logs in or start the terminal.
+	Shell is broadly classified into two categories –
+		Command Line Shell
+		Graphical shell
+		
+		Command Line Shell
+			Shell can be accessed by user using a command line interface. A special program called Terminal in linux/macOS or Command Prompt in Windows OS is provided to type in the human readable commands such as “cat”, “ls” etc. and then it is being execute.
+			Working with command line shell is bit difficult for the beginners because it’s hard to memorize so many commands. It is very powerful, it allows user to store commands in a file and execute them together. This way any repetitive task can be easily automated. These files are usually called batch files in Windows and Shell Scripts in Linux/macOS systems.
+			
+		Graphical Shells
+			Graphical shells provide means for manipulating programs based on graphical user interface (GUI), by allowing for operations such as opening, closing, moving and resizing windows, as well as switching focus between windows.
+			
+	There are several shells are available for Linux systems like –
+		BASH (Bourne Again SHell) 
+			It is most widely used shell in Linux systems. It is used as default login shell in Linux systems and in macOS. It can also be installed on Windows OS.
+		
+		CSH (C SHell)
+			The C shell’s syntax and usage are very similar to the C programming language.
+			
+		KSH (Korn SHell) 
+			The Korn Shell also was the base for the POSIX Shell standard specifications etc.
+	
+Shell Scripting
+	Usually shells are interactive that mean, they accept command as input from users and execute them. However some time we want to execute a bunch of commands routinely, so we have type in all commands each time in terminal.
+	As shell can also take commands as input from file we can write these commands in a file and can execute them in shell to avoid this repetitive work. 
+	These files are called Shell Scripts or Shell Programs. Shell scripts are similar to the batch file in MS-DOS. Each shell script is saved with .sh file extension eg. myscript.sh
+	
+	A shell script comprises following elements –
+		Shell Keywords – if, else, break etc.
+		Shell commands – cd, ls, echo, pwd, touch etc.
+		Functions
+		Control flow – if..then..else, case and shell loops etc.
+		
+	Why do we need shell scripts?
+		To avoid repetitive work and automation
+		System admins use shell scripting for routine backups
+		System monitoring
+		Adding new functionality to the shell etc.
+		
+	Advantages of shell scripts
+		The command and syntax are exactly the same as those directly entered in command line, so programmer do not need to switch to entirely different syntax
+		Writing shell scripts are much quicker
+		Quick start
+		Interactive debugging etc.
+		
+	Disadvantages of shell scripts
+		Prone to costly errors, a single mistake can change the command which might be harmful
+		Slow execution speed
+		Provide minimal data structure unlike other scripting languages. etc
+		
+	It is quite frustrating, so why not we can have a utility where we just have to type the name of directory and we can directly jump to that without executing “cd ../” command again and again. Save the script as “jump.sh”
+		# !/bin/bash 
+  
+		# A simple bash script to move up to desired directory level directly 
+		  
+		function jump() 
+		{ 
+			# original value of Internal Field Separator 
+			OLDIFS=$IFS 
+		  
+			# setting field separator to "/"  
+			IFS=/ 
+		  
+			# converting working path into array of directories in path 
+			# eg. /my/path/is/like/this 
+			# into [, my, path, is, like, this] 
+			path_arr=($PWD) 
+		  
+			# setting IFS to original value 
+			IFS=$OLDIFS 
+		  
+			local pos=-1 
+		  
+			# ${path_arr[@]} gives all the values in path_arr 
+			for dir in "${path_arr[@]}"
+			do
+				# find the number of directories to move up to 
+				# reach at target directory  
+				pos=$[$pos+1] 
+				if [ "$1" = "$dir" ];then
+		  
+					# length of the path_arr 
+					dir_in_path=${#path_arr[@]} 
+		  
+					#current working directory 
+					cwd=$PWD 
+					limit=$[$dir_in_path-$pos-1] 
+					for ((i=0; i<limit; i++)) 
+					do
+						cwd=$cwd/.. 
+					done
+					cd $cwd 
+					break
+				fi
+			done
+		} 
+		
+	For now we cannot execute our shell script because it do not have permissions. We have to make it executable by typing following command –
+		$ chmod -x path/to/our/file/jump.sh
+	Now to make this available on every terminal session, we have to put this in “.bashrc” file.
+		“.bashrc” is a shell script that Bash shell runs whenever it is started interactively. The purpose of a .bashrc file is to provide a place where you can set up variables,
+		functions and aliases, define our prompt and define other settings that we want to use whenever we open a new terminal window.
+	
+	Now open terminal and type following command 
+		$ echo “source ~/path/to/our/file/jump.sh”>> ~/.bashrc
+		
+	Now open you terminal and try out new “jump” functionality by typing following command-	
+		$ jump dir_name
+
+	.cshrc file
+		You can create a special file in your home directory called .cshrc , which is read every time you begin a new csh ( C Shell ).
+		One thing you can do in the .cshrc file is change the value of certain environment variables . Environment variables have names and store a value, and they affect the way a program operates. Certain programs expect certain environment variables to be set. For example, the shell that interprets your commands uses an environment variable called PATH which tells the shell where to look for commands.
+		To see a list of the environment variables that are currently defined along with their values, type the command printenv at the unix command prompt. 
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

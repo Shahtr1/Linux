@@ -1,0 +1,27 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2020.04.29.07.54.10;	author clay;	state Exp;
+branches;
+next	;
+
+
+desc
+@this is the first comment
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@hi my name is shahrukh
+and i am awesome
+@
+

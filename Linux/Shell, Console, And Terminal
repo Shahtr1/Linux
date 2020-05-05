@@ -1,0 +1,22 @@
+Did you know that a terminal used to be a physical monitor and keyboard and a console was a port with a low-level connection to the operating system?
+
+What is a Terminal?
+		How do you give access to many users in the mainframe era? In today’s words, we would give them each a monitor, a keyboard, and a mouse. In the era of the mainframe, terminals were used. 
+		A ‘terminal’, as defined by dictionaries, is either the end of something or a point of contact, sometimes both. 
+		Mainframes had terminal stations equipped with a display and keyboard scattered around the premise. They were endpoints where users could access the mainframe.
+		
+What is Console?
+		Today, consoles can be entirely in software, but that wasn’t always the case. Consoles go hand in hand with terminals. With respect to a mainframe, a console was both the port and the digital connection to the mainframe operating system from the terminal. 
+		On a Linux system you can press <ctrl> + <alt> + <F1 | F2 | F3 | …> to reach the different software consoles.
+		
+What is Shell?
+		 A shell is the piece of material that wraps around a kernel. 
+		 In computers, there is no difference (except that the shell and kernel are software).  
+		 The shell is the command line interface you interact with. Examples of shells are BASH, CSH, and ZSH. The shell takes hand-typed commands and tells the operating system to execute them, or can take scripts and interpret logic within them in addition to instructing the operating system to execute the commands contained in the script.
+		 
+Shell vs Console vs Terminal
+		 The terminal connects to the console where the shell is presented.
+		 A TTY is a teletypewriter. It is essentially the equivalent of the console port but is often virtualized in software. If you jump to a different virtual console on your Linux machine using the above keyboard combination and login in, you can see the multiple consoles with logged in users by running the who command. 
+		 Then there are PTS devices which are Pseudo Terminal Slaves, a virtual device of sorts. They are a form of TTY, but one that is emulated to allow a TTY connection over a network or some other means. 
+		 SSH and Telnet are good examples of programs that use PTS devices.
+		 

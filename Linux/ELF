@@ -1,0 +1,97 @@
+What is an ELF file?
+	ELF is the abbreviation for Executable and Linkable Format and defines the structure for binaries, libraries, and core files. The formal specification allows the operating system to interpreter its underlying machine instructions correctly.
+	ELF files are typically the output of a compiler or linker and are a binary format. With the right tools, such file can be analyzed and better understood.
+	ELF format defines the interface between operating system and application.
+	When you tell the OS to run a program, it expects the program to be formatted in a certain way and (for example) expects the first section of the binary to be an ELF header containing certain information at specific memory offsets. This is how the application communicates important information about itself to the operating system. If you build a program in a non-ELF binary format (such as a.out or PE), then an OS that expects ELF-formatted applications will not be able to interpret the binary file or run the application. This is one big reason why Windows apps cannot be run directly on a Linux machine (or vice versa) without being either re-compiled or run inside some type of emulation layer that can translate from one binary format to another.
+	IIRC, Windows currently uses the Portable Executable (or, PE) format.
+	
+Why learn the details of ELF?
+	As a starter, it helps to learn the inner workings of our operating system. When something goes wrong, we might better understand what happened 
+	
+
+From source to process	
+	So whatever operating system we run, it needs to translate common functions to the language of the CPU, also known as machine code. A function could be something basic like opening a file on disk or showing something on the screen. Instead of talking directly to the CPU, we use a programming language, using internal functions. A compiler then translates these functions into object code. This object code is then linked into a full program, by using a linker tool. The result is a binary file,
+	which then can be executed on that specific platform and CPU type.
+	
+	
+Structure
+	Due to the extensible design of ELF files, the structure differs per file. An ELF file consists of:
+		ELF header
+		File data
+	With the readelf command, we can look at the structure of a file and it will look something like this:
+
+	Magic: 7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+
+	ELF header
+		The ELF header starts with some magic. This ELF header magic provides information about the file. The first 4 hexadecimal parts define that this is an ELF file (45=E,4c=L,46=F), prefixed with the 7f value.
+		This ELF header is mandatory. It ensures that data is correctly interpreted during linking or execution. 
+	
+	Class
+		After the ELF type declaration, there is a Class field defined. This value determines the architecture for the file. It can a 32-bit (=01) or 64-bit (=02) architecture. 
+		The magic shows a 02, which is translated by the readelf command as an ELF64 file. In other words, an ELF file using the 64-bit architecture. Not surprising, as this particular machine contains a modern CPU.
+		
+	Data
+		Next part is the data field. It knows two options: 01 for LSB (Least Significant Bit), also known as little-endian. Then there is the value 02, for MSB (Most Significant Bit, big-endian).
+		This particular value helps to interpret the remaining objects correctly within the file. This is important, as different types of processors deal differently with the incoming instructions and data structures. In this case, LSB is used, which is common for AMD64 type processors.
+		
+	Version
+		Next in line is another “01” in the magic, which is the version number. Currently, there is only 1 version type: currently, which is the value “01”. So nothing interesting to remember.
+		
+	OS/ABI
+		Each operating system has a big overlap in common functions. In addition, each of them has specific ones, or at least minor differences between them. The definition of the right set is done with an Application Binary Interface (ABI). This way the operating system and applications both know what to expect and functions are correctly forwarded. These two fields describe what ABI is used and the related version. In this case, the value is 00, which means no specific extension is used. The output shows this as System V.
+		
+	ABI version
+		When needed, a version for the ABI can be specified.
+	
+	Machine
+		We can also find the expected machine type (AMD64) in the header.
+	
+	Type
+		The type field tells us what the purpose of the file is. There are a few common file types.
+			CORE (value 4)
+			DYN (Shared object file), for libraries (value 3)
+			EXEC (Executable file), for binaries (value 2)
+			REL (Relocatable file), before linked into an executable file (value 1)
+		
+			Core Dump
+				A core dump is a file containing a process's address space (memory) when the process terminates unexpectedly.
+				Core dumps may be produced on-demand (such as by a debugger), or automatically upon termination.
+				Core dumps are triggered by the kernel in response to program crashes, and may be passed to a helper program (such as systemd-coredump) for further processing.
+					
+					systemd-coredump@.service 
+						It is a system service that can acquire core dumps from the kernel and handle them in various ways. The systemd-coredump executable does the actual work. It is invoked twice: once as the handler by the kernel, and the second time in the systemd-coredump@.service to actually write the data to the journal.
+						
+							Journal
+								Journal is used in the sense of a periodic record - e.g. like a diary. Rather than modifying the file system structure, adding new directories or extending files, the first thing the file system does is gather these events into a series of transactions and append these transactions to a log file. Background processes can then take these transactions and commit them to the actual file system. If there is a crash then the file system can recover immediately and start committing transactions present in the journal, however the last entry will probably be corrupt and will be dropped. All of which means that the file system will stay consistent.
+						
+						By default, systemd-coredump will log the core dump including a backtrace if possible to the journal and store the core dump itself in an external file in /var/lib/systemd/coredump.
+							
+				Making a core dump
+				
+	See full header details
+		While some of the fields could already be displayed via the magic value of the readelf output, there is more. 
+		For example for what specific processor type the file is.
+		Using hexdump we can see the full ELF header and its values.
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		

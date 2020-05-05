@@ -1,0 +1,422 @@
+Unpacking the Files
+
+1		You have downloaded or otherwise acquired a software package. 
+
+2		First copy it to a working directory. Then untar and gunzip it. The appropriate command for this is 
+			tar xzvf filename
+
+3		Note that if the package name has a .Z suffix, then the above procedure will serve just as well, though running uncompress, followed by a tar xvf also works.
+
+4		You may preview this process by a tar tzvf filename, which lists the files in the archive without actually unpacking them.
+
+5		The above method of unpacking "tarballs" is equivalent to either of the following:
+			gzip -cd filename | tar xvf -
+			gunzip -c filename | tar xvf -
+			
+			(The '-' causes the tar command to take its input from stdin.)
+
+6		Source files in the new bzip2 (.bz2) format can be unarchived by a bzip2 -cd filename | tar xvf -, or, more simply by a tar xyvf filename, assuming that tar has been appropriately patched 
+
+7		Debian Linux uses a different patch for tar, one written by Hiroshi Takekawa, so that the -I, --bzip2, --bunzip2 options work with that particular tar version.
+
+8		Sometimes the archived file must be untarred and installed from the user's home directory, or perhaps in a certain other directory, such as /, /usr/src, or /opt, 
+		as specified in the package's config info. 
+		Should you get an error message attempting to untar it, this may be the reason. 
+
+9		Read the package docs, especially the README and/or Install files, if present, and edit the config files and/or Makefiles as necessary.
+
+10	 Most software packages permit automating this process by running make install to emplace the binaries in the appropriate system areas.
+
+11	You might encounter shar files, or shell archives, especially in the source code newsgroups on the Internet.
+		These remain in use because they are readable to humans, and this permits newsgroup moderators to sort through them and reject unsuitable ones. 
+		They may be unpacked by the unshar filename.shar command. Otherwise the procedure for dealing with them is the same as for "tarballs".
+
+12	Some source archives have been processed using nonstandard DOS, Mac, or even Amiga compression utilities such zip, arc, lha, arj, zoo, rar, and shk. 
+		Fortunately, Sunsite and other places have Linux uncompression utilities that can deal with most or all of these.
+
+13	Occasionally, you may need to update or incorporate bug fixes into the unarchived source files using a patch or diff file that lists the changes.
+		The doc files and/or README file will inform you should this be the case. The normal syntax for invoking Larry Wall's powerful patch utility is 
+			patch < patchfile.
+			
+			
+Using Make
+
+1	The Makefile is the key to the build process. In its simplest form, a Makefile is a script for compiling or building the "binaries",
+	the executable portions of a package. 
+	The Makefile can also provide a means of updating a software package without having to recompile every single source file in it.
+
+2	At some point, the Makefile launches cc or gcc. This is actually a preprocessor, a C (or C++) compiler, and a linker,
+	invoked in that order.
+	This process converts the source into the binaries, the actual executables.
+
+3	CC is an environment variable referring to the system's C compiler. What it points to (libraries accessible, etc) depend on platform. 
+	Often it will point to /usr/bin/cc, the actual c complier (driver). On linux platforms, CC almost always points to /usr/bin/gcc.
+	gcc is the driver binary for the GNU compiler collection. It can compile C, C++, and possibly other languages;
+	it determines the language by the file extension.
+	g++ is a driver binary like gcc, but with a few special options set for compiling C++.
+	Notably (in my experience), g++ will link libstdc++ by default, while gcc won't.
+
+4	Invoking make usually involves just typing make. This generally builds all the necessary executable files for the package in question. 
+	However, make can also do other tasks, such as installing the files in their proper directories (make install)
+	and removing stale object files (make clean). 
+	Running make -n permits previewing the build process, as it prints out all the commands that would be triggered by a make,
+	without actually executing them.
+
+5	Only the simplest software uses a generic Makefile. More complex installations require tailoring the Makefile according
+	to the location of libraries, include files, and resources on your particular machine.		
+	This is especially the case when the build needs the X11 libraries to install. Imake and xmkmf accomplish this task.
+
+6	An Imakefile is, to quote the man page, a "template" Makefile. The imake utility constructs a Makefile appropriate for your system 
+	from the Imakefile.
+	In almost all cases, however, you would run xmkmf, a shell script that invokes imake, a front end for it.
+	Check the README or INSTALL file included in the software archive for specific instructions.
+
+7	Be aware that xmkmf and make may need to be invoked as root, especially when doing a make install to move the binaries over to the
+	/usr/bin or /usr/local/bin directories. 
+	Using make as an ordinary user without root privileges will likely result in write access denied error messages
+	because you lack write permission to system directories. 
+	Check also that the binaries created have the proper execute permissions for you and any other appropriate users.
+
+8	Invoking xmkmf uses the Imake file to build a new Makefile appropriate for your system. 
+	You would normally invoke xmkmf with the -a argument, to automatically do a make Makefiles, make includes, and make depend. 
+
+9	This sets the variables and defines the library locations for the compiler and linker. Sometimes, there will be no Imake file, 
+	instead there will be an INSTALL or configure script that will accomplish this purpose.
+
+10	Note that if you run configure, it should be invoked as ./configure to ensure that the correct configure script in the current directory
+	is called. 
+	In most cases, the README file included with the distribution will explain the install procedure.
+
+11	It is usually a good idea to visually inspect the Makefile that xmkmf or one of the install scripts builds. 
+	The Makefile will normally be correct for your system, but you may occasionally be required to "tweak" it or correct errors manually.
+
+12	Installing the freshly built binaries into the appropriate system directories is usually a matter of running make install as root. 
+	The usual directories for system-wide binaries on modern Linux distributions are /usr/bin, /usr/X11R6/bin, and /usr/local/bin. 
+	The preferred directory for new packages is /usr/local/bin, as this will keep separate binaries not part of the
+	original Linux installation.
+
+13	Packages originally targeted for commercial versions of UNIX may attempt to install in the /opt or other unfamiliar directory. 
+	This will, of course, result in an installation error if the intended installation directory does not exist. 
+	The simplest way to deal with this is to create, as root, an /opt directory, let the package install there,
+	then add that directory to the PATH environmental variable. 
+	Alternatively, you may create symbolic links to the /usr/local/bin directory.
+
+14	Your general installation procedure will therefore be:
+		Read the README file and other applicable docs.
+		Run xmkmf -a, or the INSTALL or configure script.
+		Check the Makefile.
+		If necessary, run make clean, make Makefiles, make includes, and make depend.
+		Run make.
+		Check file permissions.
+		If necessary, run make install.
+				
+15	After the make creates the binaries, you may wish to strip them. 
+	The strip command removes the symbolic debugging information from the binaries, and reduces their size, often drastically.
+	This also disables debugging, of course
+
+				
+Prepackaged Binaries
+	
+	Whats wrong with rpms?
+	
+	1	Manually building and installing packages from source is apparently so daunting a task for some Linux users that they have
+		embraced the popular rpm and deb or the newer Stampede slp package formats. 
+	
+	2	First, be aware that software packages are normally released first as "tarballs", and that prepackaged binaries follow days, 
+		weeks, even months later. 
+		A current rpm package is typically at least a couple of minor version behind the latest "tarball".
+		So, if you wish to keep up with all the 'bleeding edge' software, you might not wish to wait for an rpm or deb to appear.
+		Some less popular packages may never be rpm'ed.
+
+	3	Second, the "tarball" package may well be more complete, have more options, and lend itself better to customization and tweaking. 
+		The binary rpm version may be missing some of the functionality of the full release. Source rpm's contain the full source code and
+		are equivalent to the corresponding "tarballs", 
+		and they likewise need to be built and installed using either of the rpm --recompile packagename.rpm or rpm --rebuild packagename.rpm
+		options.
+
+	4	Third, some prepackaged binaries will not properly install, and even if they do install, they could crash and core-dump. 
+		They may depend on different library versions than are present in your system, or they may be improperly prepared or just plain broken. 
+		In any case, when installing an rpm or deb you necessarily trust the expertise of the persons who have packaged it.
+
+	5	Installing an rpm package is not necessarily a no-brainer. If there is a dependency conflict, an rpm install will fail.
+	
+	6	You must install rpm's and deb's as root, in order to have the necessary write permissions, and this opens a potentially serious
+		security hole, 
+		as you may inadvertently clobber system binaries and libraries, or even install a Trojan horse that might wreak havoc upon your system. 
+		It is therefore important to obtain rpm and deb packages from a "trusted source". 
+	
+	7	In any case, you should run a 'signature check' (against the MD5 checksum) on the package, 
+			rpm --checksig packagename.rpm, 
+		before installing. Likewise highly recommended is running 
+			rpm -K --nopgp packagename.rpm. 
+		The corresponding commands for deb packages are 
+			dpkg -I | --info packagename.deb 
+		and 
+			dpkg -e | --control packagename.deb.
+		
+	8	In their most simple form, the commands rpm -i packagename.rpm and dpkg --install packagename.deb automatically unpack 
+		and install the software. 
+
+	9	The martian and alien programs allow conversion between the rpm, deb, Stampede slp, and tar.gz package formats.
+		This makes these packages accessible to all Linux distributions.
+	
+			
+	Termcap and Terminfo Issues
+
+	1	"terminfo is a data base describing terminals, used by screen-oriented programs...".
+
+	2	It defines a generic set of control sequences (escape codes) used to display text on terminals,
+		and makes possible support for different terminal hardware without the need for special drivers. 
+
+	3	The terminfo libraries are located in /usr/share/terminfo on modern Linux distributions.
+
+			The Idea of a Terminal Database
+				Terminals differ. Manufacturers produce a variety of terminals,
+				each one including a particular set of features for a certain price. 
+					
+				Differences between terminals do not matter much to programs like cat (25.2) or
+				who (51.4) that use the terminal screen as a sort of typewriter with an endless scroll of paper. 
+				These programs produce sequential output and do not make use of the terminal's special features; 
+				they do not need to know much to do their job. 
+				
+				In the late 1970s, Bill Joy created the vi (30.2) text editor at U.C. Berkeley. Like all screen-oriented editors,
+				vi uses the terminal screen non-sequentially. 
+				A program performing non-sequential output does not just print character after character,
+				but must manipulate the text that was sent before, scroll the page, move the cursor, 
+				delete lines, insert characters, and more. 
+				
+				The first version of vi was written specifically for Lear Siegler ADM3a terminals. 
+				vi was such an improvement over line-oriented editors that there was great demand to port vi to other brands of terminals. 
+				The problem was that each terminal had different features and used different control codes to manipulate the features that
+				they did have in common.
+				
+				Rather than write separate terminal drivers (42.1) for each terminal type, Bill Joy did something very clever,
+				which all UNIX users now take for granted. 
+				He wrote a version of vi with generic commands to manipulate the screen instead of hardcoding the control codes
+				and dimensions for a particular terminal.
+			
+				The generic terminal-handling mechanism Joy came up with had two parts:
+				1. a database describing the capabilities of each of the terminals to be supported, 
+				2. and a subroutine library that allows programs to query that database and to make use of the capability values it contains. 
+				Both the library and the database were given the name termcap, which is short for terminal capabilities.
+				
+				The termcap database is contained in a single text file, which grew quite large over the years to include descriptions
+				of hundreds of different terminals. 
+				To improve performance, AT&T later introduced a database called terminfo, which stores terminal descriptions,
+				in compiled form, in a separate file for each terminal.
+				
+				If a program is designed to use termcap or terminfo, it queries an environment variable called TERM (5.10) to determine 
+				the terminal type, 
+				then looks up the entry for that terminal in the terminal database, and reads the definition of any capabilities 
+				it plans to use into external variables. 
+				Programs that use termcap or terminfo range from screen editors like vi and emacs.
+	
+	4	This is usually of no concern for program installation except when dealing with a package that requires termcap.
+	
+	5	Most Linux distributions now use terminfo, but still retain the older termcap libraries for compatibility with legacy applications
+		(see /etc/termcap). 
+
+	6	Sometimes there is a special compatibility package that needs to be installed to facilitate use of termcap linked binaries. 
+		Very occasionally, an #define termcap statement might need to be commented out of a source file. 
+		Check the appropriate doc files for your particular distribution for definitive information on this.
+
+
+Backward Compatibility With a.out Binaries
+	
+	1	In a very few cases, it is necessary to use a.out binaries, either because the source code is not available or 
+		because it is not possible to build new ELF binaries from the source for some reason.
+
+	2	The binfmt subsystem is a special mechanism which allows the kernel to extend its ability 
+		to recognize different executable binary formats. 
+	
+	3	It's invoked by the kernel when the user wants to execute a file with the executable (+x) flag,
+		and its purpose is to help the kernel to understand the binary structure of chosen file. 
+	
+	4	On UNIX'es, one of the oldest form of executable formats was the a.out file, which was replaced by more functional
+		and user-friendly COFF format, which was — in turn — 
+		replaced by the ELF format. 
+	
+	5	ELF got its name from Executable and Linkable Format, or — in a different time span — Extensible Linking Format,
+		and it rules the executable format kingdom until this very day.
+	
+	6	Additionally, the variety of executable formats can be seen in more visible colors when you start to consider the fact,
+		that ELF structure is slightly different on x86 and amd64 architectures. 
+	
+	7	The problem is that the system needs to support backward compatibility issues when running the software;
+		thus it needs to support both old formats, and new ones, to be regarded as usable. 
+		This is where the binfmt subsystem comes in;
+	
+	8	it's an easy way to allow the kernel to choose which binary interpreter is the proper one for chosen executable file.
+	
+	9	As it happens, ELF installations almost always have a complete set of a.out libraries in the /usr/i486-linuxaout/lib directory. 
+		The numbering scheme for a.out libraries differs from that of ELF ones, cleverly avoiding conflicts that could cause confusion.
+	
+	10	The a.out binaries should therefore be able to find the correct libraries at runtime, but this might not always be the case.
+	
+	11	Note that the kernel needs to have a.out support built into it, either directly or as a loadable module.
+		It may be necessary to rebuild the kernel to enable this. 
+			Moreover, some Linux distributions require installation of a special compatibility package, 
+			such as Debian's xcompat for executing a.out X applications.
+	
+	
+Troubleshooting
+	
+	Link Errors
+		
+		1	Suppose make fails with a Link error: -lX11: No such file or directory, even after xmkmf has been invoked.
+			This may mean that the Imake file was not set up properly.
+			Check the first part of the Makefile for lines such as:	
+					LIB=            -L/usr/X11/lib
+					INCLUDE=        -I/usr/X11/include/X11
+					LIBS=           -lX11 -lc -lm
+					
+				The -L and -I switches tell the compiler and linker where to look for the library and include files, respectively. 
+					 
+				 In this example, the X11 libraries should be in the /usr/X11/lib directory,
+				 and the X11 include files should be in the /usr/X11/include/X11 directory. If this is incorrect for your machine,
+				 make the necessary changes to the Makefile and try the make again.
+			
+		2	Undefined references to math library functions, such as the following:
+					/tmp/cca011551.o(.text+0x11): undefined reference to `cos'
+						
+				The fix for this is to explicitly link in the math library, 
+				by adding an -lm to the LIB or LIBS flags in the Makefile (see previous example).
+
+		3	Yet another thing to try if xmkmf fails is the following script:
+					make -DUseInstalled -I/usr/X386/lib/X11/config
+							
+					This is a sort of bare bones equivalent of xmkmf.	
+					
+		4	In a very few cases, running ldconfig as root may be the solution:
+				# ldconfig updates the shared library symbolic links. This may not be necessary .
+					
+		5	Some Makefiles use unrecognized aliases for libraries present in your system. 
+			For example, the build may require libX11.so.6, but there exists no such file or link in /usr/X11R6/lib. 
+			Yet, there is a libX11.so.6.1. The solution is to do a ln -s /usr/X11R6/lib/libX11.so.6.1 /usr/X11R6/lib/libX11.so.6, as root. 
+			This may need to be followed by a ldconfig.			
+			
+		6	Sometimes the source needs the older release X11R5 libraries to build. 
+			If you have the R5 libs in /usr/X11R6/lib (you were given the option of having them when first installing Linux),
+			then you need only ensure that you have the links that the software needs to build. 
+			The R5 libs are named libX11.so.3.1.0, libXaw.so.3.1.0, and libXt.so.3.1.0. 
+			You generally need links, such as libX11.so.3 -> libX11.so.3.1.0.
+			Possibly the software will also need a link of the form libX11.so -> libX11.so.3.1.0. 
+			Of course, to create a "missing" link, use the command ln -s libX11.so.3.1.0 libX11.so, as root.	
+			
+		7	Some packages will require you to install updated versions of one or more libraries. 
+			For example, the 4.x versions of the StarOffice suite from StarDivision GmbH were notorious for needing a libc version 5.4.4
+			or greater. Even the more recent StarOffice 5.0 will not run after installation with the new glibc 2.1 libs. 
+			Fortunately, the newer StarOffice 5.1 solves these problems.
+			If running an older version of StarOffice you would, as root, need to copy one or more libraries to the appropriate directories,
+			remove the old libraries, then reset the symbolic links.
+				
+			Caution: Exercise extreme care in this, as you can render your system nonfunctional if you screw up.
+			
+	Other Problems
+			
+		1	An installed Perl or shell script gives you a No such file or directory error message. 
+			In this case, check the file permissions to make sure the file is executable and check the file header to ascertain 
+			whether the shell or program invoked by the script is in the place specified. 
+			For example, the scrip may begin with:
+					#!/usr/local/bin/perl
+					
+					If Perl is in fact installed in your /usr/bin directory instead of the /usr/local/bin one, then the script will not run.
+					There are two methods of correcting this. The script file header may be changed to #!/usr/bin/perl, 
+					or a symbolic link to the correct directory may be added, ln -s /usr/bin/perl /usr/local/bin/perl.
+
+		2	Some X11 software requires the Motif libraries to build.
+			The standard Linux distributions do not have the Motif libraries installed, and at present Motif costs an extra $100-$200.
+			If you need Motif to build a certain package, but lack the Motif libraries, 
+			it may be possible to obtain statically linked binaries. Static linking incorporates the library routines 
+			in the binaries themselves. This results in much larger binary files, but the code will run on systems lacking the libraries.
+				
+		3	When a package requires libraries not present on your system for the build, 
+			it will result in link errors (undefined reference errors). 
+			The libraries may be expensive proprietary ones or difficult to find for sone other reason.
+			In that case, obtaining a statically linked binary either from the author of the package or from a Linux user group
+			may be the easiest to implement fix.
+			
+		4	Most Linux distributions have changed over to the libc 6 / glibc 2 libraries from the older libc 5.
+			Precompiled binaries that worked with the older library may bomb if you have upgraded your library. 
+			The solution is to either recompile the applications from the source or to obtain newer precompiled binaries. 
+			If you are in the process of upgrading your system to libc 6 and are experiencing problems, refer to Eric Green's Glibc 2 HOWTO.
+		
+		5	Sometimes it is necessary to remove the -ansi option from the compile flags in the Makefile.
+			This enables gcc's extra, non-ANSI features, and allows building packages that require these extensions. 
+		
+		6	Some programs require having setuid root, in order to run with root privileges.
+			The command to implement this is chmod u+s filename, as root (note that the program must already be owned by root).
+			This has the effect of setting the setuid bit in the file permissions. 
+			This issue comes up when the program accesses the system hardware, such as a modem or CD ROM drive,
+			or when the SVGA libs are invoked from console mode, as in one particularly notorious emulation package.
+			If a program works when run by root, but gives access denied error messages to an ordinary user, suspect this as the cause.
+		
+		
+	Tweaking and fine tuning
+
+		1	You may wish to examine the Makefile to make certain that the best compilation options for your system are invoked.
+			For example, setting the -O2 flag chooses the highest level of optimization and
+			the -fomit-frame-pointer flag results in a smaller binary 
+		
+		2	Note that if you obtain precompiled binaries, 
+			you will need to check for compatibility with your system:
+					
+				The binaries must run on your hardware (i.e., Intel x86).	
+				The binaries must be compatible with your kernel (i.e., a.out or ELF).
+				Your libraries must be up to date.
+				Your system must have the appropriate installation utility (rpm or deb).
+		
+		If all else fails, you may find help in the appropriate newsgroups, such as comp.os.linux.x or comp.os.linux.development.
+		
+		If nothing at all works, at least you gave it your best effort, and you learned a lot.
+			
+Final Steps
+	
+	1	Read the software package documentation to determine whether certain environmental variables need setting (in .bashrc or .cshrc)
+		and if the .Xdefaults and .Xresources files need customizing.
+			~/.Xdefaults
+				is the older method of storing X resources. This file is re-read every time an Xlib program is started.
+				If X11 is used over the network, the file must be present on the same filesystem as the programs.
+			~/.Xresources
+				is newer. It is loaded with xrdb into the RESOURCE_MANAGER property of the X11 root window.
+				Whenever any program looks up a resource, it is read straight from RESOURCE_MANAGER.
+				If this property does not exist, Xlib falls back to the old method of reading .Xdefaults on every program startup.
+				Note that most distributions will load ~/.Xresources automatically if it is present, 
+				causing .Xdefaults to be ignored even if you have never run xrdb manually.	
+	
+	2	There may be an applications default file, usually named Xfoo.ad in the original Xfoo distribution. If so, edit the Xfoo.ad file to customize it for your machine, then rename (mv) it Xfoo and install it in the /usr/lib/X11/app-defaults directory, as root. Failure to do this may cause the software to behave strangely or even refuse to run.
+		
+	3	Most software packages come with one or more preformatted man pages. As root, copy the Xfoo.man file to the appropriate /usr/man, /usr/local/man, or /usr/X11R6/man directory (man1 - man9), and rename it accordingly. For example, if Xfoo.man ends up in /usr/man/man4, it should be renamed Xfoo.4 (mv Xfoo.man Xfoo.4). By convention, user commands go in man1, games in man6, and administration packages in man8 (see the man docs for more details). Of course, you may deviate from this on your own system, if you like.
+	
+	4	
+				
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

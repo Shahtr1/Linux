@@ -1,0 +1,373 @@
+1. GCC (GNU Compiler Collection)
+	1.1 A Brief History and Introduction to GCC
+		The original GNU C Compiler (GCC) is developed by Richard Stallman, the founder of the GNU Project.
+		GCC, formerly for "GNU C Compiler", has grown over times to support many languages such as C (gcc), C++ (g++), Objective-C, Objective-C++, Java (gcj), Fortran (gfortran), Ada (gnat), Go (gccgo), OpenMP, Cilk Plus, and OpenAcc. 
+		It is now referred to as "GNU Compiler Collection".
+		
+		GCC is a key component of so-called "GNU Toolchain",
+		for developing applications and writing operating systems. 
+		The GNU Toolchain includes:
+		1. GNU Compiler Collection (GCC): a compiler suite that supports many languages,
+			such as C/C++ and Objective-C/C++.	
+			
+		2. GNU Make: an automation tool for compiling and building applications.
+		
+		3. GNU Binutils: a suite of binary utility tools, including linker and assembler.
+		
+		4. GNU Debugger (GDB).
+		
+		5. GNU Autotools: A build system including Autoconf, Autoheader, Automake and Libtool.
+		
+		6. GNU Bison: a parser generator (similar to lex and yacc).
+		
+		GCC is portable and run in many operating platforms. GCC (and GNU Toolchain) is currently available on all Unixes.
+		They are also ported to Windows (by Cygwin, MinGW and MinGW-W64). 
+		GCC is also a cross-compiler, for producing executables on different platform.
+		
+		GCC Versions
+		The various GCC versions are:
+			GCC version 1 (1987): Initial version that support C.
+			GCC version 2 (1992): supports C++.
+			GCC version 3 (2001): incorporating ECGS (Experimental GNU Compiler System), with improve optimization.
+			and so on...
+			
+	1.2 Getting Started
+		The GNU C and C++ compiler are called gcc and g++, respectively.
+		Compile/Link a Simple C Program - hello.c
+			Below is the Hello-world C program hello.c:
+				// hello.c
+				#include <stdio.h>
+				 
+				int main() {
+					printf("Hello, world!\n");
+					return 0;
+				}
+			To compile the hello.c:
+				gcc hello.c
+			The default output executable is called "a.exe" (Windows) or "a.out" (Unixes and Mac OS X).
+			
+			To run the program:
+				// (Windows) In CMD shell
+				> a
+
+				// (Unixes / Mac OS X) In Bash Shell - include the current path (./)
+				$ chmod a+x a.out
+				$ ./a.out
+		
+			Notes for Unixes and Bash Shell:
+			1. In Bash shell, the default PATH does not include the current working directory. 
+				Hence, you need to include the current path (./) in the command. 
+			2. You also need to include the file extension, if any, i.e., "./a.out".
+			3. In Unixes, the output file could be "a.out" or simply "a". 
+				Furthermore, you need to assign executable file-mode (x) to the executable file "a.out", via command "chmod a+x filename" (add executable file-mode "+x" to all users "a+x").
+		
+			To specify the output filename, use -o option:
+				> gcc -o hello.exe hello.c
+				  // Compile and link source file hello.c into executable hello.exe
+				> hello
+				  // Execute hello.exe under CMD shell
+
+				// (Unixes / Mac OS X) In Bash shell
+				$ gcc -o hello hello.c
+				$ chmod a+x hello
+				$ ./hello
+				
+		Compile/Link a Simple C++ Program - hello.cpp
+				// hello.cpp
+				#include <iostream>
+				using namespace std;
+				 
+				int main() {
+				   cout << "Hello, world!" << endl;
+				   return 0;
+				}
+			You need to use g++ to compile C++ program, as follows.
+			We use the -o option to specify the output file name.
+				// (Windows) In CMD shell
+				> g++ -o hello.exe hello.cpp
+				   // Compile and link source hello.cpp into executable hello.exe
+				> hello
+				   // Execute under CMD shell
+
+				// (Unixes / Mac OS X) In Bash shell
+				$ g++ -o hello hello.cpp
+				$ chmod a+x hello
+				$ ./hello	
+				
+		More GCC Compiler Options
+			A few commonly-used GCC compiler options are:
+				$ g++ -Wall -g -o Hello.exe Hello.cpp
+					-o: specifies the output executable filename.
+					-Wall: prints "all" Warning messages.
+					-g: generates additional symbolic debuggging information for use with gdb debugger.
+				
+				
+		Compile and Link Separately
+			The above command compile the source file into object file 
+			and link with other object files and system libraries into executable in one step.
+			You may separate compile and link in two steps as follows:
+				// Compile-only with -c option
+				> g++ -c -Wall -g Hello.cpp
+				// Link object file(s) into an executable
+				> g++ -g -o Hello.exe Hello.o
+			
+			The options are:
+			1. -c: Compile into object file "Hello.o". 
+				By default, the object file has the same name as the source file with extension of ".o" (there is no need to specify -o option). 
+				No linking with other object files or libraries.	
+				
+			2. 	Linking is performed when the input file are object files ".o" (instead of source file ".cpp" or ".c"). 
+				GCC uses a separate linker program (called ld.exe) to perform the linking.
+		
+		Compile and Link Multiple Source Files
+			Suppose that your program has two source files: file1.cpp, file2.cpp.
+			You could compile all of them in a single command:
+				> g++ -o myprog.exe file1.cpp file2.cpp 
+				
+			However, we usually compile each of the source files separately into object file, and link them together in the later stage. 
+			In this case, changes in one file does not require re-compilation of the other files.
+				> g++ -c file1.cpp
+				> g++ -c file2.cpp
+				> g++ -o myprog.exe file1.o file2.o
+				
+		Compile into a Shared Library
+			To compile and link C/C++ program into a shared library (".dll" in Windows, ".so" in Unixes), use -shared option.
+			
+	1.3 GCC Compilation Process
+									  |
+			Source Code (.c, .cpp, .h)|
+									  |
+								  Preprocessing    Step 1: Preprocessor (cpp)
+									  |
+Include Header, Expand Macro (.i, .ii)|					
+									  |
+								  Compilation		Step 2: Compiler (gcc, g++)
+									  |
+					Assembly Code (.s)|
+									  |
+								   Assemble			Step 3: Assembler (as)			
+									  |
+			   Machine Code (.o, .obj)|
+									  |
+   Static Library (.lib, .a)------->Linking  		Step 4: Linker (ld)
+									  |
+									  |
+						Executable Machine Code (.exe)		
+
+	GCC compiles a C/C++ program into executable in 4 steps as shown in the above diagram.
+		
+	1. Pre-processing: via the GNU C Preprocessor (cpp.exe),
+		which includes the headers (#include) and expands the macros (#define).
+			> cpp hello.c > hello.i
+		The resultant intermediate file "hello.i" contains the expanded source code.	
+		
+	2. 	Compilation: The compiler compiles the pre-processed source code into assembly code for a specific processor.
+			> gcc -S hello.i
+		The -S option specifies to produce assembly code, instead of object code. 
+		The resultant assembly file is "hello.s".	
+	
+	3. 	Assembly: The assembler (as.exe) converts the assembly code into machine code in the object file "hello.o".
+			> as -o hello.o hello.s
+	
+	4. 	Linker: Finally, the linker (ld.exe) links the object code with the library code to produce an executable file "hello.exe".
+			> ld -o hello.exe hello.o ...libraries...
+		
+		
+		Verbose Mode (-v)
+			> gcc -v -o hello.exe hello.c
+			
+		Defining Macro (-D)
+			You can use the -Dname option to define a macro, or -Dname=value to define a macro with a value. 
+			The value should be enclosed in double quotes if it contains spaces.	
+		
+	
+	1.4 Headers (.h), Static Libraries (.lib, .a) and Shared Library (.dll, .so)
+		
+		Static Library vs. Shared Library
+			A library is a collection of pre-compiled object files that can be linked into your programs via the linker. 
+			Examples are the system functions such as printf() and sqrt().
+			
+			There are two types of external libraries: 
+			1. A static library has file extension of ".a" (archive file) in Unixes 
+				or ".lib" (library) in Windows.
+				When your program is linked against a static library, the machine code of external functions used in your program is copied into the executable. 
+				A static library can be created via the archive program "ar.exe".	
+				
+			2. A shared library has file extension of ".so" (shared objects) in Unixes 
+				or ".dll" (dynamic link library) in Windows. 
+				When your program is linked against a shared library, only a small table is created in the executable.
+				Before the executable starts running, the operating system loads the machine code needed for the external functions - a process known as dynamic linking.
+				Dynamic linking makes executable files smaller and saves disk space, because one copy of a library can be shared between multiple programs.
+				Furthermore, most operating systems allows one copy of a shared library in memory to be used by all running programs, thus, saving memory.
+				The shared library codes can be upgraded without the need to recompile your program.
+				
+			You can list the contents of a library via "nm filename".
+
+
+		Searching for Header Files and Libraries (-I, -L and -l)
+			When compiling the program, the compiler needs the header files to compile the source codes; 
+			the linker needs the libraries to resolve external references from other object files or libraries.
+			The compiler and linker will not find the headers/libraries unless you set the appropriate options, 
+			which is not obvious for first-time user.
+			
+			For each of the headers used in your source (via #include directives), the compiler searches the so-called include-paths for these headers.
+			The include-paths are specified via -Idir option (or environment variable CPATH).
+			Since the header's filename is known (e.g., iostream.h, stdio.h), the compiler only needs the directories.
+		
+			The linker searches the so-called library-paths for libraries needed to link the program into an executable. 
+			The library-path is specified via -Ldir option (or environment variable LIBRARY_PATH).
+			In addition, you also have to specify the library name.
+			In Unixes, the library libxxx.a is specified via -lxxx option (lowercase letter 'l', without the prefix "lib" and ".a" extension). 
+			In Windows, provide the full name such as -lxxx.lib.
+			The linker needs to know both the directories as well as the library names. Hence, two options need to be specified.
+			
+			
+		Default Include-paths, Library-paths and Libraries
+			Try list the default include-paths in your system used by the "GNU C Preprocessor" via "cpp -v":
+				
+		
+	1.5	GCC Environment Variables
+		GCC uses the following environment variables:
+		1. PATH: For searching the executables and run-time shared libraries (.dll, .so).
+		
+		2. CPATH: For searching the include-paths for headers. 
+			It is searched after paths specified in -I<dir> options. 
+			C_INCLUDE_PATH and CPLUS_INCLUDE_PATH can be used to specify C and C++ headers if the particular language was indicated in pre-processing.
+		
+		3. LIBRARY_PATH: For searching library-paths for link libraries. 
+			It is searched after paths specified in -L<dir> options.	
+		
+		
+	1.6 Utilities for Examining the Compiled Files
+		For all the GNU utilities, you can use "command --help" to list the help menu; 
+		or "man command" to display the man pages.
+		
+		"file" Utility - Determine File Type
+			The utility "file" can be used to display the type of object files and executable files. 
+			For example,
+				$ gcc -c hello.c
+				$ gcc -o hello.exe hello.o
+				 
+				$ file hello.c
+				hello.c: C source, ASCII text, with CRLF line terminators
+
+				$ file hello.o
+				hello.o: data
+				 
+				> file hello.exe
+				hello.exe: PE32 executable (console) x86-64, for MS Windows
+
+		"nm" Utility - List Symbol Table of Object Files
+			$ nm hello.o
+			0000000000000000 b .bss
+			0000000000000000 d .data
+			0000000000000000 p .pdata
+			0000000000000000 r .rdata
+			0000000000000000 r .rdata$zzz
+			0000000000000000 t .text
+			0000000000000000 r .xdata
+							 U __main
+			0000000000000000 T main
+							 U puts
+							 
+			"nm" is commonly-used to check if a particular function is defined in an object file. A 'T' in the second column indicates a function that is defined, 
+			while a 'U' indicates a function which is undefined and should be resolved by the linker.				 
+
+		"ldd" Utility - List Dynamic-Link Libraries
+			The utility "ldd" examines an executable and displays a list of the shared libraries that it needs. 
+			For example,
+			> ldd hello.exe
+			ntdll.dll => /cygdrive/c/WINDOWS/SYSTEM32/ntdll.dll (0x7ff9ba3c0000)
+			KERNEL32.DLL => /cygdrive/c/WINDOWS/System32/KERNEL32.DLL (0x7ff9b9880000)
+			KERNELBASE.dll => /cygdrive/c/WINDOWS/System32/KERNELBASE.dll (0x7ff9b6a60000)
+			SYSFER.DLL => /cygdrive/c/WINDOWS/System32/SYSFER.DLL (0x6ec90000)
+			ADVAPI32.dll => /cygdrive/c/WINDOWS/System32/ADVAPI32.dll (0x7ff9b79a0000)
+			msvcrt.dll => /cygdrive/c/WINDOWS/System32/msvcrt.dll (0x7ff9b9100000)	
+
+
+
+2.  GNU Make
+		The "make" utility automates the mundane aspects of building executable from source code.
+		"make" uses a so-called makefile, which contains rules on how to build the executables.
+
+		You can issue "make --help" to list the command-line options;
+		or "man make" to display the man pages.	
+		
+	2.1  First Makefile By Example
+		NOTES:
+		1. If the command is not preceded by a tab, you get an error message "makefile:4: *** missing separator. Stop."
+		2. If there is no makefile in the current directory, 
+			you get an error message "make: *** No targets specified and no makefile found. Stop."
+		3. The makefile can be named "makefile", "Makefile" or "GNUMakefile", without file extension.	
+
+	2.2  More on Makefile
+	
+		Variables
+			A variable begins with a $ and is enclosed within parentheses (...) or braces {...}. Single character variables do not need the parentheses. 
+			For example, $(CC), $(CC_FLAGS), $@, $^.
+			
+			
+		Automatic Variables
+			Automatic variables are set by make after a rule is matched. 
+			These include:
+			
+			$@: the target filename.
+			
+			$*: the target filename without the file extension.
+
+			$<: the first prerequisite filename.
+
+			$^: the filenames of all the prerequisites, separated by spaces, discard duplicates.
+
+			$+: similar to $^, but includes duplicates.
+
+			$?: the names of all prerequisites that are newer than the target, separated by spaces.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

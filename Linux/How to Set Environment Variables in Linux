@@ -1,0 +1,60 @@
+How to Set Environment Variables in Linux
+	
+Setting an Environment Variable
+	To set an environment variable the export command is used.
+	We give the variable a name, which is what is used to access it in shell scripts and configurations,
+	and then a value to hold whatever data is needed in the variable.
+		export NAME=VALUE
+	
+	For example,
+	to set the environment variable for the home directory of a manual OpenJDK 11 installation,
+	we would use something similar to the following.
+		export JAVA_HOME=/opt/openjdk11
+	
+	To output the value of the environment variable from the shell, 
+	we use the echo command and prepend the variable’s name with a dollar ($) sign.	
+		echo $JAVA_HOME
+		
+		
+Unsetting an Environment Variable
+	unset VARIABLE_NAME		
+		
+
+Listing All Set Environment Variables		
+	set
+	
+
+Persisting Environment Variables for a User
+	When an environment variable is set from the shell using the export command, its existence ends when the user’s sessions ends. This is problematic when we need the variable to persist across sessions.
+	1. Open the current user’s profile into a text editor
+		vi ~/.bash_profile
+	2. Add the export command for every environment variable you want to persist.
+		export JAVA_HOME=/opt/openjdk11
+		
+	Adding the environment variable to a user’s bash profile alone will not export it automatically. However, the variable will be exported the next time the user logs in.
+	To immediately apply all changes to bash_profile, use the source command.
+		source ~/.bash_profile
+
+Setting Persistent Global Environment Variables
+	When an environment variable needs to persist globally across the entire system, we can set it in the default profile loaded by all users on the system.
+	All global profile settings are stored under /etc/profile. And while this file can be edited directory, it is actually recommended to store global environment variables in a directory named /etc/profile.d, where you will find a list of files that are used to set environment variables for the entire system.
+	1. Create a new file under /etc/profile.d to store the global environment variable(s). The name of the should be contextual so others may understand its purpose.
+		sudo touch /etc/profile.d/http_proxy.sh
+	2. Open the default profile into a text editor.
+		sudo vi /etc/profile.d/http_proxy.sh
+	3. 	Add new lines to export the environment variables
+		export HTTP_PROXY=http://my.proxy:8080
+		export HTTPS_PROXY=https://my.proxy:8080
+		export NO_PROXY=localhost,::1,.example.com
+	4. 	Save your changes and exit the text editor
+		
+
+
+
+
+
+
+
+
+
+
